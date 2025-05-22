@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SorATa - Login</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <style>
+        :root {
+            --primary-purple: #b14ac2;
+            --dark-purple: #9a3aad;
+            --light-purple: #c973d6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .purple-bg {
+            background-color: var(--primary-purple);
+        }
+
+        .sorata-title {
+            font-family: "Times New Roman", Times, serif;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <nav class="purple-bg text-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center">
+                <span class="sorata-title text-3xl">SorATa</span>
+            </div>
+            <div class="hidden md:flex space-x-6">
+                <a href="cloud-project.html" class="hover:text-purple-200">Home</a>
+                <a href="services.html" class="hover:text-purple-200">Services</a>
+                <a href="ews-certificate.html" class="hover:text-purple-200">EWS Support</a>
+                <a href="crowdfunding.html" class="hover:text-purple-200">Crowdfunding</a>
+
+                <a href="contact.html" class="hover:text-purple-200">Help</a>
+            </div>
+            <div>
+                <a href="signup.html" class="text-white hover:text-purple-200">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <div>
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    Sign in to your account
+                </h2>
+                <p class="mt-2 text-center text-sm text-gray-600">
+                    Or
+                    <a href="signup.html" class="font-medium text-purple-600 hover:text-purple-500">
+                        create a new account
+                    </a>
+                </p>
+            </div>
+            <form class="mt-8 space-y-6" id="login-form">
+                <div class="rounded-md shadow-sm -space-y-px">
+                    <div>
+                        <label for="email" class="sr-only">Email address</label>
+                        <input id="email" name="email" type="email" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm" placeholder="Email address">
+                    </div>
+                    <div>
+                        <label for="password" class="sr-only">Password</label>
+                        <input id="password" name="password" type="password" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm" placeholder="Password">
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white purple-bg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                        Sign in
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = "https://mauejpnslpzrpsganhsv.supabase.co";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1hdWVqcG5zbHB6cnBzZ2FuaHN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDExMDkxNzYsImV4cCI6MjA1NjY4NTE3Nn0.HCOHqRpcCDVhSS8yF0IulIw3QHw6CAQAh1T-XaACkp4";
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (error) {
+                    if (error.message.includes('Email not confirmed')) {
+                        const message = `
+                            Your email is not confirmed yet. If the link has expired or you need a new one, click "Resend Confirmation" below.
+                        `;
+                        alert(message);
+                        
+                        // Add resend confirmation button
+                        const resendButton = document.createElement('button');
+                        resendButton.textContent = 'Resend Confirmation Email';
+                        resendButton.className = 'mt-4 w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700';
+                        resendButton.onclick = async () => {
+                            try {
+                                const { error: resendError } = await supabase.auth.resend({
+                                    type: 'signup',
+                                    email: email
+                                });
+                                
+                                if (resendError) throw resendError;
+                                
+                                alert('Confirmation email has been resent. Please check your inbox (and spam folder).');
+                            } catch (error) {
+                                alert('Error resending confirmation email: ' + error.message);
+                            }
+                        };
+                        
+                        document.querySelector('.mt-8').appendChild(resendButton);
+                        return;
+                    }
+                    throw error;
+                }
+
+                // Check if profile exists
+                const { data: profile, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', data.user.id)
+                    .single();
+
+                // If profile doesn't exist, create it
+                if (!profile && !profileError) {
+                    const { error: createError } = await supabase
+                        .from('profiles')
+                        .insert([
+                            {
+                                id: data.user.id,
+                                full_name: data.user.user_metadata?.full_name || '',
+                                email: data.user.email,
+                                phone: data.user.user_metadata?.phone || '',
+                                created_at: new Date().toISOString(),
+                                updated_at: new Date().toISOString()
+                            }
+                        ]);
+
+                    if (createError) {
+                        console.error('Error creating profile:', createError);
+                        // Continue anyway, profile can be updated later
+                    }
+                }
+
+                // Store user session
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                // Redirect to dashboard
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+    </script>
+</body>
+</html> 

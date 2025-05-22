@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SorATa - Services</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <style>
+        :root {
+            --primary-purple: #b14ac2;
+            --dark-purple: #9a3aad;
+            --light-purple: #c973d6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .purple-bg {
+            background-color: var(--primary-purple);
+        }
+
+        .sorata-title {
+            font-family: "Times New Roman", Times, serif;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .feature-card {
+            background-color: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .hospital-card { 
+            transition: transform 0.3s ease, box-shadow 0.3s ease; 
+        }
+        
+        .hospital-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
+        }
+        
+        .appointment-btn { 
+            background-color: #9a3aad; 
+            transition: background-color 0.3s ease; 
+        }
+        
+        .appointment-btn:hover { 
+            background-color: #8a309d; 
+        }
+        
+        .date-option { 
+            transition: all 0.2s ease; 
+        }
+        
+        .date-option:hover { 
+            border-color: #9a3aad; 
+        }
+        
+        .date-option.selected { 
+            border-color: #9a3aad; 
+            background-color: rgba(154, 58, 173, 0.1); 
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <nav class="purple-bg text-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center">
+                <span class="sorata-title text-3xl">SorATa</span>
+            </div>
+            <div class="hidden md:flex space-x-6">
+                <a href="cloud-project.html" class="hover:text-purple-200">Home</a>
+                <a href="services.html" class="hover:text-purple-200">Services</a>
+                <a href="ews-certificate.html" class="hover:text-purple-200">EWS Support</a>
+                <a href="crowdfunding.html" class="hover:text-purple-200">Crowdfunding</a>
+
+                <a href="contact.html" class="hover:text-purple-200">Help</a>
+            </div>
+            <div id="auth-buttons" class="flex space-x-4">
+                <a href="login.html" class="text-white hover:text-purple-200">Login</a>
+                <a href="signup.html" class="text-white hover:text-purple-200">Sign Up</a>
+            </div>
+            <div id="user-buttons" class="flex space-x-4 hidden">
+                <a href="dashboard.html" class="text-white hover:text-purple-200">Dashboard</a>
+                <button id="logout-btn" class="text-white hover:text-purple-200">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="purple-bg text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="sorata-title text-5xl mb-6">Our Services</h1>
+            <p class="text-xl max-w-2xl mx-auto mb-8">
+                Comprehensive healthcare services tailored to your needs
+            </p>
+        </div>
+    </section>
+
+    <!-- Services Overview -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
+                Available Services
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Appointment Booking -->
+                <div class="feature-card bg-white p-6 transition duration-300">
+                    <div
+                        class="bg-purple-100 text-purple-500 w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto"
+                    >
+                        &#128197;
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-center">
+                        Seamless Booking
+                    </h3>
+                    <p class="text-gray-600 mb-4 text-center">
+                        Effortlessly book medical appointments and diagnostic tests with
+                        our booking system.
+                    </p>
+                    <div class="text-center">
+                        <a
+                            href="#hospital-section"
+                            class="purple-bg text-white font-medium py-2 px-4 rounded-full hover:bg-purple-700 inline-block"
+                            >Book Now</a
+                        >
+                    </div>
+                </div>
+
+                <!-- 24/7 Support -->
+                <div class="feature-card bg-white p-6 transition duration-300">
+                    <div
+                        class="bg-purple-100 text-purple-500 w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto"
+                    >
+                        &#128387;
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-center">
+                        24/7 Assistance
+                    </h3>
+                    <p class="text-gray-600 mb-4 text-center">
+                        Get immediate support and guidance through our 24/7 call and chat
+                        helpline service.
+                    </p>
+                    <div class="text-center">
+                        <a
+                            href="#"
+                            class="purple-bg text-white font-medium py-2 px-4 rounded-full hover:bg-purple-700 inline-block"
+                            >Contact Support</a
+                        >
+                    </div>
+                </div>
+
+                <!-- EWS Support -->
+                <div class="feature-card bg-white p-6 transition duration-300">
+                    <div
+                        class="bg-purple-100 text-purple-500 w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto"
+                    >
+                        &#127959;
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-center">EWS Support</h3>
+                    <p class="text-gray-600 mb-4 text-center">
+                        Comprehensive support for Economic Weakness Status certification
+                        and medical assistance.
+                    </p>
+                    <div class="text-center">
+                        <a
+                            href="ews-certificate.html"
+                            class="purple-bg text-white font-medium py-2 px-4 rounded-full hover:bg-purple-700 inline-block"
+                            >Learn More</a
+                        >
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hospital Selection Section -->
+    <section id="hospital-section" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-6" style="color: #9a3aad;">Book Your Appointment</h2>
+            <p class="text-center text-gray-600 mb-8">Choose from our network of partner hospitals and specialist doctors</p>
+
+            <!-- Hospital Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Hospital 1 -->
+                <div class="hospital-card bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="h-48 overflow-hidden">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIqSY6Fxon_2Uj6MxyJMGlor9FJ1ga1J8tPA&s" alt="Apollo Hospital" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2" style="color: #9a3aad;">Apollo Hospital</h3>
+                        <p class="text-gray-600 mb-4"><i class="fas fa-map-marker-alt mr-2"></i>Chennai</p>
+                        
+                        <h4 class="font-semibold mb-2">Available Specialists:</h4>
+                        <ul class="text-gray-600 mb-4">
+                            <li>• Dr. Sharma - Cardiologist</li>
+                            <li>• Dr. Gupta - Orthopedic</li>
+                            <li>• Dr. Patel - Neurologist</li>
+                        </ul>
+                        
+                        <button class="appointment-btn w-full text-white py-2 rounded-md flex items-center justify-center" onclick="showAppointmentForm('Apollo Hospital')">
+                            <i class="far fa-calendar-alt mr-2"></i> Book Appointment
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hospital 2 -->
+                <div class="hospital-card bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="h-48 overflow-hidden">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSSBdhdWvK3FYL7sYVqOO5BxBo6saBS47N1bw&s" alt="Fortis Hospital" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2" style="color: #9a3aad;">Fortis Hospital</h3>
+                        <p class="text-gray-600 mb-4"><i class="fas fa-map-marker-alt mr-2"></i>Chennai</p>
+                        
+                        <h4 class="font-semibold mb-2">Available Specialists:</h4>
+                        <ul class="text-gray-600 mb-4">
+                            <li>• Dr. Singh - Gynecologist</li>
+                            <li>• Dr. Ahuja - Dermatologist</li>
+                            <li>• Dr. Kapoor - Pediatrician</li>
+                        </ul>
+                        
+                        <button class="appointment-btn w-full text-white py-2 rounded-md flex items-center justify-center" onclick="showAppointmentForm('Fortis Hospital')">
+                            <i class="far fa-calendar-alt mr-2"></i> Book Appointment
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hospital 3 -->
+                <div class="hospital-card bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="h-48 overflow-hidden">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5Dj87RjIEIKlY15KoCDjfsUhPgE5tL76gfw&s" alt="Max Healthcare" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2" style="color: #9a3aad;">Max Healthcare</h3>
+                        <p class="text-gray-600 mb-4"><i class="fas fa-map-marker-alt mr-2"></i>Chennai</p>
+                        
+                        <h4 class="font-semibold mb-2">Available Specialists:</h4>
+                        <ul class="text-gray-600 mb-4">
+                            <li>• Dr. Reddy - Gastroenterologist</li>
+                            <li>• Dr. Kumar - Ophthalmologist</li>
+                            <li>• Dr. Mehta - Endocrinologist</li>
+                        </ul>
+                        
+                        <button class="appointment-btn w-full text-white py-2 rounded-md flex items-center justify-center" onclick="showAppointmentForm('Max Healthcare')">
+                            <i class="far fa-calendar-alt mr-2"></i> Book Appointment
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Appointment Form Modal -->
+    <div id="appointment-modal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center hidden z-50">
+        <div class="bg-white p-6 rounded-lg w-full max-w-4xl max-h-screen overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold" style="color: #9a3aad;" id="modal-hospital-name">Book Appointment</h3>
+                <button onclick="hideAppointmentForm()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="appointment-form" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-700 mb-2">Full Name</label>
+                        <input type="text" id="full-name" required class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Email</label>
+                        <input type="email" id="email" required class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Phone Number</label>
+                        <input type="tel" id="phone" required class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Date of Birth</label>
+                        <input type="date" id="dob" required class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-700 mb-2">Appointment Type</label>
+                        <select id="appointment-type" required class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                            <option value="">Select appointment type</option>
+                            <option value="General Consultation">General Consultation</option>
+                            <option value="Specialized Treatment">Specialized Treatment</option>
+                            <option value="Diagnostic Tests">Diagnostic Tests</option>
+                            <option value="Follow-up">Follow-up</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Doctor</label>
+                        <select id="doctor" required class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                            <option value="">Select a doctor</option>
+                            <option value="Dr. Sharma">Dr. Sharma</option>
+                            <option value="Dr. Patel">Dr. Patel</option>
+                            <option value="Dr. Singh">Dr. Singh</option>
+                            <option value="Dr. Gupta">Dr. Gupta</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Preferred Date</label>
+                        <input type="date" id="appointment-date" required class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Preferred Time</label>
+                        <select id="appointment-time" required class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                            <option value="">Select time</option>
+                            <option value="09:00">9:00 AM</option>
+                            <option value="10:00">10:00 AM</option>
+                            <option value="11:00">11:00 AM</option>
+                            <option value="14:00">2:00 PM</option>
+                            <option value="15:00">3:00 PM</option>
+                            <option value="16:00">4:00 PM</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 mb-2">Reason for Visit</label>
+                    <textarea id="reason" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-md"></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 mb-2">Payment Method</label>
+                    <select id="payment-method" required class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                        <option value="">Select payment method</option>
+                        <option value="card">Credit/Debit Card</option>
+                        <option value="upi">UPI</option>
+                    </select>
+                </div>
+                
+                <div id="payment-details" class="hidden">
+                    <!-- Payment details will be shown here based on selection -->
+                </div>
+                
+                <div class="flex justify-between">
+                    <button type="button" onclick="hideAppointmentForm()" class="bg-gray-300 text-black px-4 py-2 rounded-md">
+                        Cancel
+                    </button>
+                    <button type="submit" class="bg-purple-600 text-white px-6 py-2 rounded-md">
+                        Book Appointment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = "https://mauejpnslpzrpsganhsv.supabase.co";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1hdWVqcG5zbHB6cnBzZ2FuaHN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDExMDkxNzYsImV4cCI6MjA1NjY4NTE3Nn0.HCOHqRpcCDVhSS8yF0IulIw3QHw6CAQAh1T-XaACkp4";
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if user is logged in
+            const user = JSON.parse(localStorage.getItem('user'));
+            const authButtons = document.getElementById('auth-buttons');
+            const userButtons = document.getElementById('user-buttons');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            if (user) {
+                // User is logged in
+                authButtons.classList.add('hidden');
+                userButtons.classList.remove('hidden');
+                
+                // Pre-fill form with user data if available
+                document.getElementById('email').value = user.email || '';
+                
+                // Fetch user profile
+                fetchUserProfile(user.id);
+            } else {
+                // User is not logged in
+                authButtons.classList.remove('hidden');
+                userButtons.classList.add('hidden');
+            }
+
+            // Setup logout button
+            logoutBtn.addEventListener('click', async () => {
+                try {
+                    await supabase.auth.signOut();
+                    localStorage.removeItem('user');
+                    window.location.href = 'login.html';
+                } catch (error) {
+                    console.error('Error signing out:', error);
+                    alert('Error signing out. Please try again.');
+                }
+            });
+            
+            // Handle payment method change
+            const paymentMethodSelect = document.getElementById('payment-method');
+            const paymentDetailsDiv = document.getElementById('payment-details');
+            
+            paymentMethodSelect.addEventListener('change', function(e) {
+                paymentDetailsDiv.classList.remove('hidden');
+                
+                if (e.target.value === 'card') {
+                    paymentDetailsDiv.innerHTML = `
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-gray-700 mb-2">Card Number</label>
+                                <input type="text" id="card-number" placeholder="1234 5678 9012 3456" required class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-gray-700 mb-2">Expiry Date</label>
+                                    <input type="text" id="card-expiry" placeholder="MM/YY" required class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 mb-2">CVV</label>
+                                    <input type="text" id="card-cvv" placeholder="123" required class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else if (e.target.value === 'upi') {
+                    paymentDetailsDiv.innerHTML = `
+                        <div>
+                            <label class="block text-gray-700 mb-2">UPI ID</label>
+                            <input type="text" id="upi-id" placeholder="username@upi" required class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                        </div>
+                    `;
+                }
+            });
+            
+            // Handle form submission
+            document.getElementById('appointment-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                try {
+                    const user = JSON.parse(localStorage.getItem('user'));
+                    
+                    if (!user || !user.id) {
+                        alert('Please log in to book an appointment');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+
+                    const fullName = document.getElementById('full-name').value;
+                    const email = document.getElementById('email').value;
+                    const phone = document.getElementById('phone').value;
+                    const dob = document.getElementById('dob').value;
+                    const appointmentType = document.getElementById('appointment-type').value;
+                    const doctor = document.getElementById('doctor').value;
+                    const appointmentDate = document.getElementById('appointment-date').value;
+                    const appointmentTime = document.getElementById('appointment-time').value;
+                    const reason = document.getElementById('reason').value;
+                    const paymentMethod = document.getElementById('payment-method').value;
+                    
+                    // Debug: Log appointment data
+                    const appointmentData = {
+                        user_id: user.id,
+                        full_name: fullName,
+                        email: email,
+                        phone: phone,
+                        dob: dob,
+                        doctor_name: doctor,
+                        appointment_type: appointmentType,
+                        appointment_date: appointmentDate,
+                        appointment_time: appointmentTime,
+                        reason: reason,
+                        payment_method: paymentMethod,
+                        payment_status: 'pending',
+                        status: 'scheduled'
+                    };
+                    console.log('Attempting to insert appointment:', appointmentData);
+
+                    // Check if user has an appointment at the same time
+                    const { data: existingAppointments, error: checkError } = await supabase
+                        .from('appointments')
+                        .select('*')
+                        .eq('user_id', user.id)
+                        .eq('appointment_date', appointmentDate)
+                        .eq('appointment_time', appointmentTime);
+                    
+                    if (checkError) {
+                        console.error('Error checking existing appointments:', checkError);
+                        throw checkError;
+                    }
+                    
+                    if (existingAppointments && existingAppointments.length > 0) {
+                        alert('You already have an appointment at this time. Please choose a different time.');
+                        return;
+                    }
+                    
+                    // Check if user has EWS certificate
+                    const { data: ewsCertificate, error: ewsError } = await supabase
+                        .from('ews_applications')
+                        .select('*')
+                        .eq('user_id', user.id)
+                        .eq('status', 'approved')
+                        .single();
+                    
+                    console.log('EWS Certificate Check:', { ewsCertificate, ewsError });
+                    
+                    if (ewsError && ewsError.code !== 'PGRST116') {
+                        console.error('Error checking EWS certificate:', ewsError);
+                        throw ewsError;
+                    }
+                    
+                    // If user has approved EWS certificate, set payment status as completed
+                    if (ewsCertificate) {
+                        console.log('EWS Certificate found, exempting payment');
+                        appointmentData.payment_status = 'completed';
+                        appointmentData.payment_method = 'ews_exempt';
+                        
+                        // Hide payment method section if it's visible
+                        const paymentMethodSection = document.getElementById('payment-method').closest('div');
+                        if (paymentMethodSection) {
+                            paymentMethodSection.style.display = 'none';
+                        }
+                        
+                        // Hide payment details if visible
+                        const paymentDetailsDiv = document.getElementById('payment-details');
+                        if (paymentDetailsDiv) {
+                            paymentDetailsDiv.style.display = 'none';
+                        }
+                    } else {
+                        console.log('No EWS Certificate found, payment required');
+                    }
+                    
+                    // Create appointment
+                    const { data, error } = await supabase
+                        .from('appointments')
+                        .insert([appointmentData])
+                        .select();
+                    
+                    if (error) {
+                        console.error('Error inserting appointment:', error);
+                        throw error;
+                    }
+                    
+                    // Show success message
+                    alert('Appointment booked successfully! You will receive a confirmation email shortly.');
+                    
+                    // Hide the form
+                    hideAppointmentForm();
+                    
+                } catch (error) {
+                    console.error('Error booking appointment:', error);
+                    alert('Error booking appointment: ' + error.message);
+                }
+            });
+        });
+        
+        // Function to fetch user profile
+        async function fetchUserProfile(userId) {
+            try {
+                const { data, error } = await supabase
+                    .from('public.profiles')
+                    .select('*')
+                    .eq('id', userId)
+                    .single();
+                
+                if (error) throw error;
+                
+                if (data) {
+                    document.getElementById('full-name').value = data.full_name || '';
+                    document.getElementById('phone').value = data.phone || '';
+                }
+            } catch (error) {
+                console.error('Error fetching user profile:', error);
+            }
+        }
+        
+        // Function to show appointment form
+        function showAppointmentForm(hospitalName) {
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            if (!user) {
+                alert('Please log in to book an appointment');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            document.getElementById('modal-hospital-name').textContent = `Book Appointment - ${hospitalName}`;
+            document.getElementById('appointment-modal').classList.remove('hidden');
+            
+            // Update doctor options based on hospital
+            const doctorSelect = document.getElementById('doctor');
+            doctorSelect.innerHTML = '<option value="">Select a doctor</option>';
+            
+            if (hospitalName === 'Apollo Hospital') {
+                doctorSelect.innerHTML += `
+                    <option value="Dr. Sharma">Dr. Sharma - Cardiologist</option>
+                    <option value="Dr. Gupta">Dr. Gupta - Orthopedic</option>
+                    <option value="Dr. Patel">Dr. Patel - Neurologist</option>
+                `;
+            } else if (hospitalName === 'Fortis Hospital') {
+                doctorSelect.innerHTML += `
+                    <option value="Dr. Singh">Dr. Singh - Gynecologist</option>
+                    <option value="Dr. Ahuja">Dr. Ahuja - Dermatologist</option>
+                    <option value="Dr. Kapoor">Dr. Kapoor - Pediatrician</option>
+                `;
+            } else if (hospitalName === 'Max Healthcare') {
+                doctorSelect.innerHTML += `
+                    <option value="Dr. Reddy">Dr. Reddy - Gastroenterologist</option>
+                    <option value="Dr. Kumar">Dr. Kumar - Ophthalmologist</option>
+                    <option value="Dr. Mehta">Dr. Mehta - Endocrinologist</option>
+                `;
+            }
+            
+            // Check if user has an approved EWS certificate
+            checkEWSCertificate(user.id);
+        }
+        
+        // Function to check for EWS certificate
+        async function checkEWSCertificate(userId) {
+            try {
+                const { data: ewsCertificate, error: ewsError } = await supabase
+                    .from('ews_certificates')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .eq('status', 'approved')
+                    .single();
+                
+                console.log('EWS Certificate Check on form open:', { ewsCertificate, ewsError });
+                
+                if (ewsError && ewsError.code !== 'PGRST116') {
+                    console.error('Error checking EWS certificate:', ewsError);
+                    return;
+                }
+                
+                // If user has approved EWS certificate, hide payment section
+                if (ewsCertificate) {
+                    console.log('EWS Certificate found, hiding payment section');
+                    
+                    // Hide payment method section
+                    const paymentMethodSection = document.getElementById('payment-method').closest('div');
+                    if (paymentMethodSection) {
+                        paymentMethodSection.style.display = 'none';
+                    }
+                    
+                    // Hide payment details if visible
+                    const paymentDetailsDiv = document.getElementById('payment-details');
+                    if (paymentDetailsDiv) {
+                        paymentDetailsDiv.style.display = 'none';
+                    }
+                    
+                    // Add a message about EWS exemption
+                    const appointmentForm = document.getElementById('appointment-form');
+                    const exemptionMessage = document.createElement('div');
+                    exemptionMessage.className = 'bg-green-100 text-green-800 p-3 rounded-md mb-4';
+                    exemptionMessage.innerHTML = '<strong>EWS Certificate Detected:</strong> Your appointment will be exempt from payment.';
+                    
+                    // Insert the message before the submit button
+                    const submitButton = appointmentForm.querySelector('button[type="submit"]');
+                    if (submitButton) {
+                        appointmentForm.insertBefore(exemptionMessage, submitButton);
+                    } else {
+                        appointmentForm.appendChild(exemptionMessage);
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking EWS certificate:', error);
+            }
+        }
+        
+        // Function to hide appointment form
+        function hideAppointmentForm() {
+            document.getElementById('appointment-modal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

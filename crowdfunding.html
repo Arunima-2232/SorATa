@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SorATa - Crowdfunding</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+    <script>
+      const supabaseUrl = "https://mauejpnslpzrpsganhsv.supabase.co";
+      const supabaseKey =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1hdWVqcG5zbHB6cnBzZ2FuaHN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDExMDkxNzYsImV4cCI6MjA1NjY4NTE3Nn0.HCOHqRpcCDVhSS8yF0IulIw3QHw6CAQAh1T-XaACkp4";
+      const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+      document.addEventListener('DOMContentLoaded', () => {
+        // Initialize payment method selection
+        const paymentMethod = document.getElementById('payment-method');
+        const cardFields = document.getElementById('card-fields');
+        const upiFields = document.getElementById('upi-fields');
+
+        if (paymentMethod && cardFields && upiFields) {
+          // Show initial payment fields based on default selection
+          const initialMethod = paymentMethod.value;
+          cardFields.classList.toggle('hidden', initialMethod !== 'card');
+          upiFields.classList.toggle('hidden', initialMethod !== 'upi');
+          
+          // Set initial required attributes
+          if (initialMethod === 'card') {
+            document.getElementById('card-number').required = true;
+            document.getElementById('expiry').required = true;
+            document.getElementById('cvv').required = true;
+            document.getElementById('upi-id').required = false;
+          } else {
+            document.getElementById('upi-id').required = true;
+            document.getElementById('card-number').required = false;
+            document.getElementById('expiry').required = false;
+            document.getElementById('cvv').required = false;
+          }
+
+          // Add change event listener
+          paymentMethod.addEventListener('change', function() {
+            cardFields.classList.add('hidden');
+            upiFields.classList.add('hidden');
+
+            if (this.value === 'card') {
+              cardFields.classList.remove('hidden');
+              // Make card fields required
+              document.getElementById('card-number').required = true;
+              document.getElementById('expiry').required = true;
+              document.getElementById('cvv').required = true;
+              // Make UPI fields not required
+              document.getElementById('upi-id').required = false;
+            } else if (this.value === 'upi') {
+              upiFields.classList.remove('hidden');
+              // Make UPI fields required
+              document.getElementById('upi-id').required = true;
+              // Make card fields not required
+              document.getElementById('card-number').required = false;
+              document.getElementById('expiry').required = false;
+              document.getElementById('cvv').required = false;
+            }
+          });
+        }
+        
+        // Initialize payment method selection
+        initializePaymentMethodSelection();
+        
+        // Add event listeners to donation buttons
+        const donationButtons = document.querySelectorAll('.donate-btn');
+        donationButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            // Get the campaign from the data attribute
+            const campaign = this.getAttribute('data-campaign');
+            
+            // Set the campaign in the dropdown
+            const campaignSelect = document.getElementById('campaign');
+            if (campaignSelect) {
+              campaignSelect.value = campaign;
+            }
+            
+            // Show the donation form
+            const donationForm = document.getElementById('donation-form');
+            if (donationForm) {
+              donationForm.classList.remove('hidden');
+            }
+          });
+        });
+        
+        // Check if user is logged in
+        const user = JSON.parse(localStorage.getItem('user'));
+        const authButtons = document.getElementById('auth-buttons');
+        const userButtons = document.getElementById('user-buttons');
+        const logoutBtn = document.getElementById('logout-btn');
+        const donorNameInput = document.getElementById('donor-name');
+        const donorEmailInput = document.getElementById('donor-email');
+
+        if (user) {
+          // User is logged in
+          authButtons.classList.add('hidden');
+          userButtons.classList.remove('hidden');
+          
+          // Auto-populate user information
+          if (donorNameInput && donorEmailInput) {
+            donorNameInput.value = user.user_metadata?.full_name || '';
+            donorEmailInput.value = user.email || '';
+            donorNameInput.readOnly = true;
+            donorEmailInput.readOnly = true;
+          }
+        } else {
+          // User is not logged in
+          authButtons.classList.remove('hidden');
+          userButtons.classList.add('hidden');
+        }
+
+        // Setup logout button
+        if (logoutBtn) {
+          logoutBtn.addEventListener('click', async () => {
+            try {
+              await supabase.auth.signOut();
+              localStorage.removeItem('user');
+              window.location.href = 'login.html';
+            } catch (error) {
+              console.error('Error signing out:', error);
+              alert('Error signing out. Please try again.');
+            }
+          });
+        }
+
+        // Add event listener for form submission
+        const donationForm = document.querySelector('#donation-form-submit');
+        if (donationForm) {
+          console.log("Form found, adding submit event listener");
+          donationForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            console.log("Form submitted");
+            const submitButton = this.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = "Processing...";
+
+            try {
+              const user = JSON.parse(localStorage.getItem('user'));
+              console.log("User from localStorage:", user);
+              
+              const name = document.getElementById("donor-name").value;
+              const email = document.getElementById("donor-email").value;
+              const donationAmount = parseFloat(document.getElementById("donation-amount").value);
+              const campaign = document.getElementById("campaign").value;
+              const paymentMethod = document.getElementById("payment-method").value;
+
+              // Get payment details based on selected method
+              let paymentDetails = {};
+              if (paymentMethod === 'upi') {
+                const upiId = document.getElementById("upi-id");
+                if (!upiId || !upiId.value) {
+                  throw new Error("Please enter your UPI ID");
+                }
+                paymentDetails = { upi_id: upiId.value };
+              } else if (paymentMethod === 'card') {
+                const cardNumber = document.getElementById("card-number");
+                const expiryDate = document.getElementById("expiry");
+                const cvv = document.getElementById("cvv");
+                
+                if (!cardNumber || !expiryDate || !cvv) {
+                  throw new Error("Payment form elements not found. Please try again.");
+                }
+                
+                if (!cardNumber.value || !expiryDate.value || !cvv.value) {
+                  throw new Error("Please enter all card details");
+                }
+                
+                // Basic card validation
+                if (!/^\d{16}$/.test(cardNumber.value.replace(/\s/g, ''))) {
+                  throw new Error("Please enter a valid 16-digit card number");
+                }
+                if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiryDate.value)) {
+                  throw new Error("Please enter a valid expiry date (MM/YY)");
+                }
+                if (!/^\d{3,4}$/.test(cvv.value)) {
+                  throw new Error("Please enter a valid CVV");
+                }
+                
+                paymentDetails = {
+                  card_number: cardNumber.value.replace(/\s/g, ''),
+                  expiry_date: expiryDate.value,
+                  cvv: cvv.value
+                };
+              }
+
+              // Process payment
+              const paymentResult = await processPayment(paymentMethod, paymentDetails, donationAmount);
+              
+              if (!paymentResult.success) {
+                throw new Error(paymentResult.message || "Payment processing failed");
+              }
+
+              // Insert the donation information into the Supabase database
+              const donationData = {
+                name,
+                email,
+                donation_amt: donationAmount,
+                campaign,
+                donation_date: new Date().toISOString(),
+              };
+              
+              // If user is logged in, add their ID to the donation record
+              if (user) {
+                donationData.id = user.id;
+              }
+              
+              const { data, error } = await supabase
+                .from("donations")
+                .insert([donationData])
+                .select();
+
+              if (error) {
+                console.error("Supabase error details:", error);
+                throw error;
+              }
+
+              console.log("Donation added successfully:", data);
+              
+              // Update the campaign progress bar and amount
+              updateCampaignProgress(campaign, donationAmount);
+              
+              // Show success message
+              alert("Thank you for your donation! Your contribution has been recorded.");
+              
+              // Reset form
+              this.reset();
+              
+              // Close modal
+              document.getElementById('donation-form').classList.add('hidden');
+              
+              // Fetch and display updated donations
+              fetchUserDonations();
+            } catch (error) {
+              console.error("Error processing donation:", error);
+              alert(`Error: ${error.message || "There was an error processing your donation. Please try again."}`);
+            } finally {
+              submitButton.disabled = false;
+              submitButton.textContent = "Donate";
+            }
+          });
+        }
+      });
+
+      // Function to fetch and display donor information
+      async function fetchUserDonations() {
+        try {
+          const { data, error } = await supabase
+            .from("donations")
+            .select("*")
+            .order("donation_date", { ascending: false });
+
+          if (error) {
+            console.error("Error fetching donations:", error);
+            return;
+          }
+
+          const donorList = document.getElementById("donor-list");
+          donorList.innerHTML = "";
+
+          if (!data || data.length === 0) {
+            donorList.innerHTML = '<p class="text-center text-gray-600">No donations yet. Be the first to donate!</p>';
+            return;
+          }
+
+          // Get current user ID
+          const currentUser = JSON.parse(localStorage.getItem('user'));
+          const currentUserId = currentUser ? currentUser.id : null;
+
+          data.forEach((donation, index) => {
+            const donorCard = document.createElement("div");
+            donorCard.classList.add("feature-card", "p-6");
+            
+            // Add highlight for current user's donations
+            if (currentUserId && donation.id === currentUserId) {
+              donorCard.classList.add("border-2", "border-purple-500");
+            }
+            
+            // Add "New" badge for the most recent donation
+            const isNew = index === 0;
+            
+            donorCard.innerHTML = `
+              <div class="flex justify-between items-center mb-3">
+                <h3 class="text-xl font-semibold text-center">${donation.name}</h3>
+                ${isNew ? '<span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">New</span>' : ''}
+              </div>
+              <p class="text-gray-600 text-center mb-4">Email: ${donation.email}</p>
+              <p class="text-gray-600 text-center mb-4">Donation Amount: ₹${donation.donation_amt.toLocaleString()}</p>
+              <p class="text-gray-600 text-center mb-4">Campaign: ${donation.campaign}</p>
+              <p class="text-gray-600 text-center mb-4">Donation Date: ${new Date(donation.donation_date).toLocaleDateString()}</p>
+            `;
+            donorList.appendChild(donorCard);
+          });
+        } catch (error) {
+          console.error("Error fetching donations:", error);
+        }
+      }
+
+      // Real-time subscription to new donations
+      supabase
+        .channel("donations")
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "donations",
+          },
+          (payload) => {
+            console.log("New donation received:", payload.new);
+            fetchUserDonations(); // Fetch updated list of donations
+          }
+        )
+        .subscribe();
+
+      // Function to process payment (mock implementation)
+      async function processPayment(method, details, amount) {
+        // This is a mock implementation. In production, you would integrate with a payment gateway
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve({
+              success: true,
+              transactionId: 'TXN' + Math.random().toString(36).substr(2, 9).toUpperCase(),
+              message: 'Payment processed successfully'
+            });
+          }, 1500);
+        });
+      }
+
+      // Initial fetch of donations
+      fetchUserDonations();
+
+      // Function to update campaign progress
+      function updateCampaignProgress(campaign, donationAmount) {
+        // Find the campaign card
+        const campaignCards = document.querySelectorAll('.feature-card');
+        let targetCard;
+        
+        for (const card of campaignCards) {
+          const title = card.querySelector('h3');
+          if (title && title.textContent.includes(campaign)) {
+            targetCard = card;
+            break;
+          }
+        }
+        
+        if (!targetCard) return;
+        
+        // Get current progress elements
+        const progressBar = targetCard.querySelector('.progress-bar');
+        const raisedText = targetCard.querySelector('.flex.justify-between span:first-child');
+        const goalText = targetCard.querySelector('.flex.justify-between span:last-child');
+        
+        // Extract current raised amount and goal
+        const currentRaised = parseFloat(raisedText.textContent.replace('Raised: ₹', '').replace(/,/g, ''));
+        const goal = parseFloat(goalText.textContent.replace('Goal: ₹', '').replace(/,/g, ''));
+        
+        // Calculate new raised amount and percentage
+        const newRaised = currentRaised + donationAmount;
+        const percentage = Math.min(100, (newRaised / goal) * 100);
+        
+        // Update the UI
+        progressBar.style.width = `${percentage}%`;
+        raisedText.textContent = `Raised: ₹${newRaised.toLocaleString()}`;
+      }
+
+      // Function to initialize payment method selection
+      function initializePaymentMethodSelection() {
+        const paymentMethod = document.getElementById('payment-method');
+        const cardFields = document.getElementById('card-fields');
+        const upiFields = document.getElementById('upi-fields');
+
+        if (!paymentMethod || !cardFields || !upiFields) {
+          console.error('Payment method elements not found');
+          return;
+        }
+
+        // Show initial payment fields based on default selection
+        const initialMethod = paymentMethod.value;
+        cardFields.classList.toggle('hidden', initialMethod !== 'card');
+        upiFields.classList.toggle('hidden', initialMethod !== 'upi');
+
+        // Add change event listener
+        paymentMethod.addEventListener('change', function() {
+          cardFields.classList.add('hidden');
+          upiFields.classList.add('hidden');
+
+          if (this.value === 'card') {
+            cardFields.classList.remove('hidden');
+            // Make card fields required
+            document.getElementById('card-number').required = true;
+            document.getElementById('expiry').required = true;
+            document.getElementById('cvv').required = true;
+            // Make UPI fields not required
+            document.getElementById('upi-id').required = false;
+          } else if (this.value === 'upi') {
+            upiFields.classList.remove('hidden');
+            // Make UPI fields required
+            document.getElementById('upi-id').required = true;
+            // Make card fields not required
+            document.getElementById('card-number').required = false;
+            document.getElementById('expiry').required = false;
+            document.getElementById('cvv').required = false;
+          }
+        });
+
+        // Format card number input
+        const cardNumber = document.getElementById('card-number');
+        if (cardNumber) {
+          cardNumber.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 16) value = value.slice(0, 16);
+            value = value.replace(/(\d{4})/g, '$1 ').trim();
+            e.target.value = value;
+          });
+        }
+
+        // Format expiry date input
+        const expiryDate = document.getElementById('expiry');
+        if (expiryDate) {
+          expiryDate.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 4) value = value.slice(0, 4);
+            if (value.length >= 2) {
+              value = value.slice(0,2) + '/' + value.slice(2);
+            }
+            e.target.value = value;
+          });
+        }
+
+        // Format CVV input
+        const cvv = document.getElementById('cvv');
+        if (cvv) {
+          cvv.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 4) value = value.slice(0, 4);
+            e.target.value = value;
+          });
+        }
+      }
+    </script>
+
+    <style>
+      :root {
+        --primary-purple: #b14ac2;
+        --dark-purple: #9a3aad;
+        --light-purple: #c973d6;
+        --white: #ffffff;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .purple-bg {
+        background-color: var(--primary-purple);
+      }
+
+      .feature-card {
+        background-color: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+      }
+
+      .sorata-title {
+        font-family: "Times New Roman", Times, serif;
+        font-weight: bold;
+        letter-spacing: 2px;
+      }
+
+      .progress-bar {
+        background-color: var(--light-purple);
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50">
+    <nav class="purple-bg text-white shadow-md">
+      <div
+        class="container mx-auto px-4 py-3 flex justify-between items-center"
+      >
+        <div class="flex items-center">
+          <span class="sorata-title text-3xl">SorATa</span>
+        </div>
+        <div class="hidden md:flex space-x-6">
+          <a href="cloud-project.html" class="hover:text-purple-200">Home</a>
+          <a href="services.html" class="hover:text-purple-200">Services</a>
+          <a href="ews-certificate.html" class="hover:text-purple-200">EWS Support</a>
+          <a href="crowdfunding.html" class="hover:text-purple-200">Crowdfunding</a>
+
+          <a href="contact.html" class="hover:text-purple-200">Help</a>
+        </div>
+        <div id="auth-buttons" class="flex space-x-4">
+          <a href="login.html" class="text-white hover:text-purple-200">Login</a>
+          <a href="signup.html" class="text-white hover:text-purple-200">Sign Up</a>
+        </div>
+        <div id="user-buttons" class="flex space-x-4 hidden">
+          <a href="dashboard.html" class="text-white hover:text-purple-200">Dashboard</a>
+          <button id="logout-btn" class="text-white hover:text-purple-200">Logout</button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="purple-bg text-white py-16">
+      <div class="container mx-auto px-4 text-center">
+        <h1 class="sorata-title text-5xl mb-6">Support Healthcare for All</h1>
+        <p class="text-xl max-w-2xl mx-auto mb-8">
+          Your donation can transform lives by providing medical care to those
+          who need it most.
+        </p>
+      </div>
+    </section>
+
+    <!-- Campaigns Section -->
+    <section class="py-16 bg-white">
+      <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
+          Active Campaigns
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div class="feature-card p-6">
+            <div class="flex items-center mb-4">
+              <div
+                class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4"
+              >
+                &#127973;
+              </div>
+              <div>
+                <h3 class="font-semibold text-xl">Children's Medical Fund</h3>
+              </div>
+            </div>
+            <div class="mb-4">
+              <div
+                class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700"
+              >
+                <div
+                  class="progress-bar h-2.5 rounded-full"
+                  style="width: 60%"
+                ></div>
+              </div>
+            </div>
+            <div class="flex justify-between text-sm text-gray-600 mb-4">
+              <span>Raised: ₹1,50,000</span>
+              <span>Goal: ₹2,50,000</span>
+            </div>
+            <p class="text-gray-600 mb-4">
+              Help provide crucial medical treatments for children from
+              economically disadvantaged backgrounds.
+            </p>
+            <!-- Open the donation form when clicked -->
+            <button
+              data-campaign="Children's Medical Fund"
+              class="purple-bg text-white px-4 py-2 rounded-full block text-center donate-btn"
+            >
+              Donate Now
+            </button>
+          </div>
+
+          <div class="feature-card p-6">
+            <div class="flex items-center mb-4">
+              <div
+                class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4"
+              >
+                &#128105;&#8205;&#127908;
+              </div>
+              <div>
+                <h3 class="font-semibold text-xl">Women's Health Initiative</h3>
+              </div>
+            </div>
+            <div class="mb-4">
+              <div
+                class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700"
+              >
+                <div
+                  class="progress-bar h-2.5 rounded-full"
+                  style="width: 37.5%"
+                ></div>
+              </div>
+            </div>
+            <div class="flex justify-between text-sm text-gray-600 mb-4">
+              <span>Raised: ₹75,000</span>
+              <span>Goal: ₹2,00,000</span>
+            </div>
+            <p class="text-gray-600 mb-4">
+              Support comprehensive healthcare screenings and treatments for
+              women in underserved communities.
+            </p>
+            <!-- Open the donation form when clicked -->
+            <button
+              data-campaign="Women's Health Initiative"
+              class="purple-bg text-white px-4 py-2 rounded-full block text-center donate-btn"
+            >
+              Donate Now
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Donation Form Modal -->
+    <div
+      id="donation-form"
+      class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center hidden"
+    >
+      <div class="bg-white p-6 rounded-lg w-96">
+        <h3 class="text-2xl font-bold text-center mb-4">Donation Form</h3>
+        <form id="donation-form-submit">
+          <div class="mb-4">
+            <label for="donor-name" class="block text-gray-700">Name</label>
+            <input
+              type="text"
+              id="donor-name"
+              name="donor-name"
+              class="w-full p-2 border border-gray-300 rounded"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label for="donor-email" class="block text-gray-700">Email</label>
+            <input
+              type="email"
+              id="donor-email"
+              name="donor-email"
+              class="w-full p-2 border border-gray-300 rounded"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label for="donation-amount" class="block text-gray-700"
+              >Donation Amount</label
+            >
+            <input
+              type="number"
+              id="donation-amount"
+              name="donation-amount"
+              class="w-full p-2 border border-gray-300 rounded"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label for="campaign" class="block text-gray-700">Campaign</label>
+            <select
+              id="campaign"
+              name="campaign"
+              class="w-full p-2 border border-gray-300 rounded"
+              required
+            >
+              <option value="Children's Medical Fund">
+                Children's Medical Fund
+              </option>
+              <option value="Women's Health Initiative">
+                Women's Health Initiative
+              </option>
+            </select>
+          </div>
+          
+          <div class="mb-4">
+            <label for="payment-method" class="block text-gray-700">Payment Method</label>
+            <select
+              id="payment-method"
+              name="payment-method"
+              class="w-full p-2 border border-gray-300 rounded"
+              required
+            >
+              <option value="card">Credit/Debit Card</option>
+              <option value="upi">UPI</option>
+            </select>
+          </div>
+
+          <div id="payment-details" class="mb-4">
+            <!-- Card payment fields (initially hidden) -->
+            <div id="card-fields" class="space-y-4 hidden">
+              <div>
+                <label for="card-number" class="block text-gray-700">Card Number</label>
+                <input
+                  type="text"
+                  id="card-number"
+                  name="card-number"
+                  class="w-full p-2 border border-gray-300 rounded"
+                  placeholder="1234 5678 9012 3456"
+                  maxlength="19"
+                  required
+                />
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label for="expiry" class="block text-gray-700">Expiry Date</label>
+                  <input
+                    type="text"
+                    id="expiry"
+                    name="expiry"
+                    class="w-full p-2 border border-gray-300 rounded"
+                    placeholder="MM/YY"
+                    maxlength="5"
+                    required
+                  />
+                </div>
+                <div>
+                  <label for="cvv" class="block text-gray-700">CVV</label>
+                  <input
+                    type="password"
+                    id="cvv"
+                    name="cvv"
+                    class="w-full p-2 border border-gray-300 rounded"
+                    placeholder="123"
+                    maxlength="4"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+            <!-- UPI payment fields (initially hidden) -->
+            <div id="upi-fields" class="hidden">
+              <label for="upi-id" class="block text-gray-700">UPI ID</label>
+              <input
+                type="text"
+                id="upi-id"
+                name="upi-id"
+                class="w-full p-2 border border-gray-300 rounded"
+                placeholder="username@upi"
+                required
+              />
+            </div>
+          </div>
+          
+          <div class="flex justify-between items-center">
+            <button
+              type="submit"
+              class="purple-bg text-white px-4 py-2 rounded-full"
+            >
+              Donate
+            </button>
+            <button
+              type="button"
+              onclick="document.getElementById('donation-form').classList.add('hidden');"
+              class="bg-gray-300 text-black px-4 py-2 rounded-full"
+            >
+              Close
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Donors Section -->
+    <section class="py-16 bg-gray-100">
+      <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
+          Our Donors
+        </h2>
+        <div id="donor-list" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Donors will be dynamically added here -->
+        </div>
+      </div>
+    </section>
+
+    <footer class="bg-purple-900 text-white py-6">
+      <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center">
+          <span>&copy© 2025 SorATa. All rights reserved.</span>
+          <div class="flex space-x-6">
+            <a href="#" class="hover:text-purple-300">Privacy Policy</a>
+            <a href="#" class="hover:text-purple-300">Terms of Service</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
