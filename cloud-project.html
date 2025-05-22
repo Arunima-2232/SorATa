@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SorATa - Healthcare Platform</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-purple: #b14ac2;
+        --dark-purple: #9a3aad;
+        --light-purple: #c973d6;
+        --white: #ffffff;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .purple-bg {
+        background-color: var(--primary-purple);
+      }
+
+      .feature-card {
+        background-color: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      .icon-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 40px;
+      }
+
+      .sorata-title {
+        font-family: "Times New Roman", Times, serif;
+        font-weight: bold;
+        letter-spacing: 2px;
+      }
+
+      .donation-section {
+        background-color: var(--primary-purple);
+        padding: 40px 20px;
+        margin-top: 60px;
+        text-align: center;
+      }
+
+      .donation-icon {
+        width: 100px;
+        margin: 20px auto;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50">
+    <nav class="purple-bg text-white shadow-md">
+      <div
+        class="container mx-auto px-4 py-3 flex justify-between items-center"
+      >
+        <div class="flex items-center">
+          <span class="sorata-title text-3xl">SorATa</span>
+        </div>
+        <div class="hidden md:flex space-x-6">
+          <a href="cloud-project.html" class="hover:text-purple-200">Home</a>
+          <a href="services.html" class="hover:text-purple-200">Services</a>
+          <a href="ews-certificate.html" class="hover:text-purple-200">EWS Support</a>
+          <a href="crowdfunding.html" class="hover:text-purple-200">Crowdfunding</a>
+
+          <a href="contact.html" class="hover:text-purple-200">Help</a>
+        </div>
+        <div id="auth-buttons" class="flex space-x-4">
+          <a href="login.html" class="text-white hover:text-purple-200">Login</a>
+          <a href="signup.html" class="text-white hover:text-purple-200">Sign Up</a>
+        </div>
+        <div id="user-buttons" class="flex space-x-4 hidden">
+          <a href="dashboard.html" class="text-white hover:text-purple-200">Dashboard</a>
+          <button id="logout-btn" class="text-white hover:text-purple-200">Logout</button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <section class="purple-bg text-white py-8">
+      <div class="container mx-auto px-4">
+        <h1 class="sorata-title text-5xl text-center mb-16 mt-8">SorATa</h1>
+
+        <!-- Feature Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+          <!-- Appointment Card -->
+          <div class="feature-card p-6">
+            <div
+              class="icon-circle"
+              style="background-color: #d53f8c; color: white"
+            >
+              &#128197;
+            </div>
+            <h2 class="text-center text-gray-800 font-bold text-xl mb-3">
+              BOOK APPOINTMENT
+            </h2>
+            <p class="text-center text-gray-600">
+              Book a consultation with any of our experienced doctors or a test
+              conveniently.
+            </p>
+          </div>
+
+          <!-- EWS Verification Card -->
+          <div class="feature-card p-6">
+            <div class="icon-circle" style="background-color: white">
+              <span style="color: green">&#10004;</span>
+            </div>
+            <h2 class="text-center text-gray-800 font-bold text-xl mb-3">
+              EWS VERIFICATION
+            </h2>
+            <p class="text-center text-gray-600">
+              EWS certificate verification to assign funds for the treatment of
+              patients from EWS.
+            </p>
+          </div>
+        </div>
+
+        <!-- Donation Section -->
+        <div class="donation-section mt-16 rounded-lg">
+          <h2 class="text-white font-bold text-3xl mb-4">Donate</h2>
+          <p class="text-white text-lg max-w-2xl mx-auto">
+            Your donations will be used to treat patients from the economically
+            backward sections. This money will be used for their treatment.
+          </p>
+          <div class="donation-icon">
+            <span style="font-size: 3rem; color: red">&#10084;</span>
+            <span style="font-size: 3rem; color: gray">&#129309;</span>
+          </div>
+          <a
+            href="crowdfunding.html"
+            class="mt-4 inline-block bg-white text-purple-700 px-6 py-2 rounded-full font-medium hover:bg-gray-100 transition"
+            >View Campaigns</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- Additional Services Section -->
+    <section class="py-16 bg-white">
+      <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
+          Our Services
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <!-- Appointment Booking -->
+          <div class="feature-card bg-white p-6 transition duration-300">
+            <div
+              class="bg-purple-100 text-purple-500 w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto"
+            >
+              &#128197;
+            </div>
+            <h3 class="text-xl font-semibold mb-2 text-center">
+              Seamless Booking
+            </h3>
+            <p class="text-gray-600 mb-4 text-center">
+              Effortlessly book medical appointments and diagnostic tests with
+              our booking system.
+            </p>
+            <div class="text-center">
+              <a
+                href="services.html"
+                class="purple-bg text-white font-medium py-2 px-4 rounded-full hover:bg-purple-700 inline-block"
+                >Book Now</a
+              >
+            </div>
+          </div>
+
+          <!-- 24/7 Support -->
+          <div class="feature-card bg-white p-6 transition duration-300">
+            <div
+              class="bg-purple-100 text-purple-500 w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto"
+            >
+              &#128387;
+            </div>
+            <h3 class="text-xl font-semibold mb-2 text-center">
+              24/7 Assistance
+            </h3>
+            <p class="text-gray-600 mb-4 text-center">
+              Get immediate support and guidance through our 24/7 call and chat
+              helpline service.
+            </p>
+            <div class="text-center">
+              <a
+                href="contact.html"
+                class="purple-bg text-white font-medium py-2 px-4 rounded-full hover:bg-purple-700 inline-block"
+                >Contact Support</a
+              >
+            </div>
+          </div>
+
+          <!-- EWS Support -->
+          <div class="feature-card bg-white p-6 transition duration-300">
+            <div
+              class="bg-purple-100 text-purple-500 w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto"
+            >
+              &#127959;
+            </div>
+            <h3 class="text-xl font-semibold mb-2 text-center">EWS Support</h3>
+            <p class="text-gray-600 mb-4 text-center">
+              Comprehensive support for Economic Weakness Status certification
+              and medical assistance.
+            </p>
+            <div class="text-center">
+              <a
+                href="ews-certificate.html"
+                class="purple-bg text-white font-medium py-2 px-4 rounded-full hover:bg-purple-700 inline-block"
+                >Learn More</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-16 bg-gray-50">
+      <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
+          What Our Users Say
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <!-- Testimonial 1 -->
+          <div class="feature-card p-6">
+            <div class="flex items-center mb-4">
+              <div
+                class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4"
+              >
+                <span class="text-purple-500 font-bold">RP</span>
+              </div>
+              <div>
+                <h4 class="font-semibold">Rajesh Patel</h4>
+                <p class="text-gray-500 text-sm">EWS Beneficiary</p>
+              </div>
+            </div>
+            <p class="text-gray-600 italic">
+              "The EWS validation process was simple, and I got free
+              consultation for my condition. The system accurately identified my
+              symptoms."
+            </p>
+            <div class="mt-4 text-yellow-400">
+              <span>&#9733;</span>
+              <span>&#9733;</span>
+              <span>&#9733;</span>
+              <span>&#9733;</span>
+              <span>&#9733;</span>
+            </div>
+          </div>
+
+          <!-- Testimonial 2 -->
+          <div class="feature-card p-6">
+            <div class="flex items-center mb-4">
+              <div
+                class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4"
+              >
+                <span class="text-purple-500 font-bold">SA</span>
+              </div>
+              <div>
+                <h4 class="font-semibold">Dr. Sunita Arora</h4>
+                <p class="text-gray-500 text-sm">Healthcare Provider</p>
+              </div>
+            </div>
+            <p class="text-gray-600 italic">
+              "SorATa's platform has revolutionized how we manage patient data
+              and track treatment progress. The integration is seamless and
+              user-friendly."
+            </p>
+            <div class="mt-4 text-yellow-400">
+              <span>&#9733;</span>
+              <span>&#9733;</span>
+              <span>&#9733;</span>
+              <span>&#9733;</span>
+              <span>&#9734;</span>
+            </div>
+          </div>
+
+          <!-- Testimonial 3 -->
+          <div class="feature-card p-6">
+            <div class="flex items-center mb-4">
+              <div
+                class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4"
+              >
+                <span class="text-purple-500 font-bold">MK</span>
+              </div>
+              <div>
+                <h4 class="font-semibold">Meera Khanna</h4>
+                <p class="text-gray-500 text-sm">Community Volunteer</p>
+              </div>
+            </div>
+            <p class="text-gray-600 italic">
+              "As a community volunteer, I've seen how SorATa bridges the
+              healthcare gap for underprivileged communities. Their commitment
+              is truly transformative."
+            </p>
+            <div class="mt-4 text-yellow-400">
+              <span>&#9733;</span>
+              <span>&#9733;</span>
+              <span>&#9733;</span>
+              <span>&#9733;</span>
+              <span>&#9733;</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 purple-bg text-white">
+      <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-4">
+          Ready to take control of your health?
+        </h2>
+        <p class="text-xl mb-8 max-w-2xl mx-auto">
+          Join thousands of users benefiting from our healthcare platform.
+        </p>
+        <div
+          class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4"
+        >
+        </div>
+      </div>
+    </section>
+
+    <footer class="bg-purple-900 text-white py-6 mt-16">
+      <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center">
+          <span>&copy; 2025 SorATa. All rights reserved.</span>
+          <div class="flex space-x-6">
+            <a href="#" class="hover:text-purple-300">Privacy Policy</a>
+            <a href="#" class="hover:text-purple-300">Terms of Service</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script>
+        const supabaseUrl = SUPABASE URL;
+        const supabaseKey = SUPABASE KEY;
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if user is logged in
+            const user = JSON.parse(localStorage.getItem('user'));
+            const authButtons = document.getElementById('auth-buttons');
+            const userButtons = document.getElementById('user-buttons');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            if (user) {
+                // User is logged in
+                authButtons.classList.add('hidden');
+                userButtons.classList.remove('hidden');
+            } else {
+                // User is not logged in
+                authButtons.classList.remove('hidden');
+                userButtons.classList.add('hidden');
+            }
+
+            // Setup logout button
+            logoutBtn.addEventListener('click', async () => {
+                try {
+                    await supabase.auth.signOut();
+                    localStorage.removeItem('user');
+                    window.location.href = 'login.html';
+                } catch (error) {
+                    console.error('Error signing out:', error);
+                    alert('Error signing out. Please try again.');
+                }
+            });
+        });
+    </script>
+  </body>
+</html>
